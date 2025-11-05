@@ -7,9 +7,9 @@ public class Employee {
     }
 
     Employee(String l_name, String f_name, int ssn){
-        last_name = l_name;
-        first_name = f_name;
-        social_security_number = ssn;
+        this.last_name = l_name;
+        this.first_name = f_name;
+        this.social_security_number = ssn;
     }
 
     protected void setMonthlyPayment(double amount) {

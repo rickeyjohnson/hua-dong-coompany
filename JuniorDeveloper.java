@@ -4,6 +4,6 @@ public class JuniorDeveloper extends NewDeveloper {
     @Override
     protected void receiveBonus(){
         super.receiveBonus();
-        salary *= 1.01;
+        this.salary *= 1.01;
     }
 }

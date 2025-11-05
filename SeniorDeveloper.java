@@ -5,6 +5,6 @@ public class SeniorDeveloper extends JuniorDeveloper {
     @Override
     protected void receiveBonus(){
         super.receiveBonus();
-        stockOptions += 100;
+        this.stockOptions += 100;
     }
 }
