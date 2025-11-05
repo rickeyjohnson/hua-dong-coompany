@@ -3,7 +3,9 @@ public class Employee {
     protected String first_name;
     protected int social_security_number;
     Employee(){
-
+        this.last_name = "";
+        this.first_name = "";
+        this.social_security_number = 0;
     }
 
     Employee(String l_name, String f_name, int ssn){
