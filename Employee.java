@@ -18,7 +18,8 @@ public class Employee {
         // Implementation here
     }
 
-    protected void calculateAnnualPayment() {
+    protected double calculateAnnualPayment() {
         // Implementation here
+        return 0;
     }
 }

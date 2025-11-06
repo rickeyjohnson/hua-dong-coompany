@@ -1,27 +1,23 @@
 public class NewDeveloper extends Employee {
-    protected double salary;
-    protected double monthlyPayment;
+    //TODO: salary should represent a monthly value instead of yearly, refactor use
+    protected double monthly_salary;
+    protected double bonus;
 
     NewDeveloper(){
         super();
-        this.salary = 10000;
-        this.monthlyPayment = this.salary / 12;
+        this.monthly_salary = 10000;
     }
     NewDeveloper(String l_name, String f_name, int ssn){
         super(l_name, f_name, ssn);
-        this.salary = 10000;
-        this.monthlyPayment = this.salary / 12;
+        this.monthly_salary = 10000;
+        this.bonus = 0;
     }
 
     protected void receiveBonus(){
-        this.salary += 5000;
+        this.bonus += 5000;
     }
     @Override
-    protected void setMonthlyPayment(double amount){
-        this.monthlyPayment = amount;
-        this.salary = this.monthlyPayment * 12;
-    }
-    protected void setMonthlyPayment(){
-        this.monthlyPayment = salary / 12;
+    protected double calculateAnnualPayment(){
+        return (this.monthly_salary * 12) + bonus;
     }
 }
