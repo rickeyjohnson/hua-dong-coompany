@@ -1,31 +1,44 @@
-import java.io.*;
 import java.util.ArrayList;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-// Main class
-class Main extends JFrame {
+public class Main extends JFrame {
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+    private JPanel inputPanel;
+    private JPanel displayPanel;
     private JTextField firstNameField, lastNameField, ssnField;
-    private JComboBox<String> roleBox;
     private JTextArea displayArea;
-    private JButton addButton, displayButton;
     private ArrayList<Employee> employees;
 
     public Main() {
-        setTitle("Employee Payment Application");
+        setTitle("Employee Payment Lookup");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 500);
+        setSize(600, 450);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
 
         employees = new ArrayList<>();
 
-        // Input Panel
-        JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        employees.add(new SeniorDeveloper("John", "Doe", 123456789));
+        employees.add(new JuniorDeveloper("Jane", "Smith", 345678912));
+        employees.add(new NewDeveloper("Chris", "Brown", 901256789));
+
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        createInputPanel();
+        createDisplayPanel();
+
+        mainPanel.add(inputPanel, "Input");
+        mainPanel.add(displayPanel, "Display");
+
+        add(mainPanel);
+        cardLayout.show(mainPanel, "Input");
+    }
+
+    private void createInputPanel() {
+        inputPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         inputPanel.add(new JLabel("First Name:"));
         firstNameField = new JTextField();
@@ -35,144 +48,131 @@ class Main extends JFrame {
         lastNameField = new JTextField();
         inputPanel.add(lastNameField);
 
-        inputPanel.add(new JLabel("SSN:"));
+        inputPanel.add(new JLabel("Full SSN (9 digits):"));
         ssnField = new JTextField();
         inputPanel.add(ssnField);
 
-        // Removed base pay field as salaries are fixed per role
+        JButton searchButton = new JButton("View Employee Info");
+        inputPanel.add(new JLabel());
+        inputPanel.add(searchButton);
 
-        inputPanel.add(new JLabel("Role:"));
-        roleBox = new JComboBox<>(new String[]{
-                "Intern", "Developer", "Junior Developer", "Senior Developer"
-        });
-        inputPanel.add(roleBox);
+        searchButton.addActionListener(e -> viewEmployeeInfo());
+    }
 
-        addButton = new JButton("Add Employee");
-        inputPanel.add(addButton);
+    private void createDisplayPanel() {
+        displayPanel = new JPanel(new BorderLayout(10, 10));
+        displayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        displayButton = new JButton("Display Annual Payment Info");
-        inputPanel.add(displayButton);
-
-        add(inputPanel, BorderLayout.NORTH);
-
-        // Display area
         displayArea = new JTextArea();
         displayArea.setEditable(false);
         displayArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        add(new JScrollPane(displayArea), BorderLayout.CENTER);
+        displayPanel.add(new JScrollPane(displayArea), BorderLayout.CENTER);
 
-        // Add employee button
-        addButton.addActionListener(e -> addEmployee());
-
-        // Display all employees
-        displayButton.addActionListener(e -> displayAllEmployees());
-    }
-
-    private void addEmployee() {
-        try {
-            String firstName = firstNameField.getText().trim();
-            String lastName = lastNameField.getText().trim();
-            String ssn = ssnField.getText().trim();
-            String role = (String) roleBox.getSelectedItem();
-            if (firstName.isEmpty() || lastName.isEmpty() || ssn.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "All fields must be filled.",
-                        "Input Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Employee emp;
-            int ssnNum = Integer.parseInt(ssn);
-            
-            switch (role) {
-                case "Senior Developer":
-                    emp = new SeniorDeveloper(lastName, firstName, ssnNum);
-                    break;
-                case "Junior Developer":
-                    emp = new JuniorDeveloper(lastName, firstName, ssnNum);
-                    break;
-                case "Developer":
-                    emp = new NewDeveloper(lastName, firstName, ssnNum);
-                    break;
-                default:
-                    emp = new Employee(lastName, firstName, ssnNum);
-            }
-            
-            employees.add(emp);
-            JOptionPane.showMessageDialog(this,
-                    "Employee added successfully!",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            // Clear inputs
+        JButton backButton = new JButton("Go Back");
+        backButton.addActionListener(e -> {
             firstNameField.setText("");
             lastNameField.setText("");
             ssnField.setText("");
-            roleBox.setSelectedIndex(0);
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Base pay must be a valid number.",
-                    "Input Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+            cardLayout.show(mainPanel, "Input");
+        });
+        displayPanel.add(backButton, BorderLayout.SOUTH);
     }
 
-    private void displayAllEmployees() {
-        if (employees.isEmpty()) {
+    private void viewEmployeeInfo() {
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String ssnInput = ssnField.getText().trim();
+
+        if (firstName.isEmpty() || lastName.isEmpty() || ssnInput.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "No employees added yet.",
-                    "Info",
+                    "Please enter first name, last name, and full SSN.",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!ssnInput.matches("\\d{9}")) {
+            JOptionPane.showMessageDialog(this,
+                    "SSN must be exactly 9 digits (numbers only).",
+                    "Invalid SSN",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Employee found = null;
+        for (Employee e : employees) {
+            if (e.firstName.equalsIgnoreCase(firstName)
+                    && e.lastName.equalsIgnoreCase(lastName)
+                    && String.valueOf(e.ssn).equals(ssnInput)) {
+                found = e;
+                break;
+            }
+        }
+
+        if (found == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Employee not found. Check spelling or SSN.",
+                    "Not Found",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
+        // Display Employee Info
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Annual Payment Information ===\n\n");
+        sb.append("=== Employee Information ===\n\n");
+        sb.append("First Name: ").append(found.firstName).append("\n");
+        sb.append("Last Name: ").append(found.lastName).append("\n");
+        sb.append("SSN: ").append(found.ssn).append("\n");
 
-        for (Employee emp : employees) {
-            String last4 = String.valueOf(emp.social_security_number % 10000);
-            sb.append("Name: ").append(emp.first_name).append(" ").append(emp.last_name).append("\n");
-            sb.append("SSN (Last 4): ").append(last4).append("\n");
-            
-            if (emp instanceof SeniorDeveloper) {
-                SeniorDeveloper senior = (SeniorDeveloper) emp;
-                sb.append("Role: Senior Developer\n");
-                sb.append(String.format("Annual Salary: $%.2f\n", senior.salary));
-                senior.receiveBonus(); // This will add both bonus and stock options
-                sb.append(String.format("Salary after 1%% Bonus: $%.2f\n", senior.salary));
-                sb.append(String.format("Stock Options: %d shares\n", senior.stockOptions));
-                sb.append(String.format("Monthly Payment: $%.2f\n", senior.monthlyPayment));
-            } else if (emp instanceof JuniorDeveloper) {
-                JuniorDeveloper junior = (JuniorDeveloper) emp;
-                sb.append("Role: Junior Developer\n");
-                sb.append(String.format("Annual Salary: $%.2f\n", junior.salary));
-                junior.receiveBonus(); // This will add the 1% bonus
-                sb.append(String.format("Salary after 1%% Bonus: $%.2f\n", junior.salary));
-                sb.append(String.format("Monthly Payment: $%.2f\n", junior.monthlyPayment));
-            } else if (emp instanceof NewDeveloper) {
-                NewDeveloper developer = (NewDeveloper) emp;
-                sb.append("Role: Developer\n");
-                sb.append(String.format("Annual Salary: $%.2f\n", developer.salary));
-                developer.receiveBonus(); // This will add the fixed bonus
-                sb.append(String.format("Salary after $5000 Bonus: $%.2f\n", developer.salary));
-                sb.append(String.format("Monthly Payment: $%.2f\n", developer.monthlyPayment));
-            } else {
-                sb.append("Role: Employee\n");
-                sb.append("Base Employee - No salary information available\n");
-            }
-            
-            sb.append("------------------------------\n\n");
+        if (found instanceof SeniorDeveloper) {
+            SeniorDeveloper s = (SeniorDeveloper) found;
+            double baseAnnual = s.monthly_salary * 12;
+            double onePercentBonus = baseAnnual * 0.01;
+
+            sb.append("Role: Senior Developer\n\n");
+
+            sb.append(String.format("Base Annual Salary: $%.2f\n", baseAnnual));
+            sb.append(String.format("1%% Additional Payment: $%.2f\n", onePercentBonus));
+            sb.append(String.format("Extra Bonus: $.2f", s.bonus));
+            sb.append(String.format("Stock Options: %d shares\n", s.stockOptions));
+            sb.append(String.format("Total Annual Payment: $%.2f\n", s.calculateAnnualPayment()));
+
+        } else if (found instanceof JuniorDeveloper) {
+            JuniorDeveloper j = (JuniorDeveloper) found;
+            double baseAnnual = j.monthly_salary * 12;
+            double onePercentBonus = baseAnnual * 0.01;
+
+            sb.append("Role: Junior Developer\n\n");
+
+            sb.append(String.format("Base Annual Salary: $%.2f\n", baseAnnual));
+            sb.append(String.format("1%% Additional Payment: $%.2f\n", onePercentBonus));
+            sb.append(String.format("Extra Bonus: $%.2f\n", j.bonus));
+            sb.append(String.format("Total Annual Payment: $%.2f\n", j.calculateAnnualPayment()));
+
+        } else if (found instanceof NewDeveloper) {
+            NewDeveloper d = (NewDeveloper) found;
+            double baseAnnual = d.monthly_salary * 12;
+
+            sb.append("Role: New Developer\n\n");
+
+            sb.append(String.format("Base Annual Salary: $%.2f\n", baseAnnual));
+            sb.append(String.format("Extra Bonus: $.2f", d.bonus));
+            sb.append(String.format("Total Annual Payment: $%.2f\n", d.calculateAnnualPayment()));
+
+        } else if (found instanceof Employee) {
+            Employee e = (Employee) found;
+
+            sb.append("Role: Employee\n\n");
+
+            sb.append("No additional payment information available.\n");
         }
 
+
         displayArea.setText(sb.toString());
+        cardLayout.show(mainPanel, "Display");
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Main app = new Main();
-            app.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
 }
