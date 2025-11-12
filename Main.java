@@ -160,8 +160,6 @@ public class Main extends JFrame {
             sb.append(String.format("Total Annual Payment: $%.2f\n", d.calculateAnnualPayment()));
 
         } else if (found instanceof Employee) {
-            Employee e = (Employee) found;
-
             sb.append("Role: Employee\n\n");
 
             sb.append("No additional payment information available.\n");
