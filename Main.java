@@ -133,7 +133,7 @@ public class Main extends JFrame {
 
             sb.append(String.format("Base Annual Salary: $%.2f\n", baseAnnual));
             sb.append(String.format("1%% Additional Payment: $%.2f\n", onePercentBonus));
-            sb.append(String.format("Extra Bonus: $.2f", s.bonus));
+            sb.append(String.format("Extra Bonus: $%.2f\n", s.bonus));
             sb.append(String.format("Stock Options: %d shares\n", s.stockOptions));
             sb.append(String.format("Total Annual Payment: $%.2f\n", s.calculateAnnualPayment()));
 
