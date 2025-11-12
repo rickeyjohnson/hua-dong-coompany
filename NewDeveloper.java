@@ -3,7 +3,7 @@ public class NewDeveloper extends Employee {
 
     public NewDeveloper(String firstName, String lastName, int ssn) {
         super(firstName, lastName, ssn);
-        super.setMonthlySalary(10000); // Base monthly salary for Developers
+        super.setMonthlySalary(10000);
         this.bonus = 0.0;
     }
 
